@@ -19,8 +19,10 @@ jobs:
           do
             echo "Getting pulls for $image"
             pulls=$(curl -s https://hub.docker.com/v2/repositories/staphb/$image/    | jq -r ".pull_count")
+            sleep 3s
             echo "There are $pulls total pulls for $image"
             tags=$(curl -s https://hub.docker.com/v2/repositories/staphb/$image/tags | jq -r '.results[].name' | wc -l)
+            sleep 3s
             echo "There are $tags total tags for $image"
             issue_text="$issue_text<br>${image},${pulls},${tags}"
           done
