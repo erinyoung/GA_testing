@@ -1,4 +1,4 @@
-name: Check versions
+name: Docker pulls
 
 on:
   workflow_dispatch:
@@ -11,12 +11,16 @@ jobs:
     steps:
       - name: repos
         run: |
-          issue_text="Needing updates:  " 
+          date=
+          issue_text="Docker pulls $date:  <br>- image,pulls_to_date" 
           images=($(curl -s https://hub.docker.com/v2/repositories/staphb/?page_size=500 | jq -r '.results|.[]|.name'))
           echo ${images[@]}
-
+          for image in ${images[@]}
+          do
+            pulls=$(curl -s https://hub.docker.com/v2/repositories/staphb/$image/ | jq -r ".pull_count")
+            issue_text="$issue_text<br>- ${image},${pulls}"
+          done
           echo $issue_text
-          cat versions.txt
           echo 'ISSUE_TEXT='$issue_text >> $GITHUB_ENV
           
       #- name: Create Issue
