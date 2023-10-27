@@ -11,20 +11,22 @@ jobs:
     steps:
       - name: repos
         run: |
-          date=
+          date=$(date '+%Y-%m-%d')
           issue_text="Docker pulls $date:  <br>- image,pulls_to_date" 
           images=($(curl -s https://hub.docker.com/v2/repositories/staphb/?page_size=500 | jq -r '.results|.[]|.name'))
           echo ${images[@]}
           for image in ${images[@]}
           do
+            echo "Getting pulls for $image"
             pulls=$(curl -s https://hub.docker.com/v2/repositories/staphb/$image/ | jq -r ".pull_count")
+            echo "There are $pulls total pulls for $image"
             issue_text="$issue_text<br>- ${image},${pulls}"
           done
           echo $issue_text
           echo 'ISSUE_TEXT='$issue_text >> $GITHUB_ENV
           
-      #- name: Create Issue
-      #  run: |
-      #    gh issue create --title "Pulls" --body "$ISSUE_TEXT" --repo $GITHUB_REPOSITORY
-      #  env:
-      #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create Issue
+        run: |
+          gh issue create --title "Pulls" --body "$ISSUE_TEXT" --repo $GITHUB_REPOSITORY
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
