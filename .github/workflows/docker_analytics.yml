@@ -13,11 +13,11 @@ jobs:
         run: |
           date=$(date '+%Y-%m-%d')
           issue_text="Docker pulls $date:  <br>image,pulls_to_date,num_tags" 
-          images=($(curl -s https://hub.docker.com/v2/repositories/staphb/?page_size=500 | jq -r '.results|.[]|.name'))
-          echo ${images[@]}
+          images=($(curl -s https://hub.docker.com/v2/repositories/staphb/?page_size=500 | jq -r '.results|.[]|.name' | sort | uniq))
+          i=1
           for image in ${images[@]}
           do
-            echo "Getting pulls for $image"
+            echo "Getting pulls for $image ( image $1 of ${#images[@]} )"
             pulls=$(curl -s https://hub.docker.com/v2/repositories/staphb/$image/    | jq -r ".pull_count")
             sleep 3s
             echo "There are $pulls total pulls for $image"
@@ -25,6 +25,7 @@ jobs:
             sleep 3s
             echo "There are $tags total tags for $image"
             issue_text="$issue_text<br>${image},${pulls},${tags}"
+            i=$((i+1))
           done
           echo $issue_text
           echo 'ISSUE_TEXT='$issue_text >> $GITHUB_ENV
