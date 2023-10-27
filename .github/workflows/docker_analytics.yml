@@ -17,7 +17,7 @@ jobs:
           i=1
           for image in ${images[@]}
           do
-            echo "Getting pulls for $image ( image $1 of ${#images[@]} )"
+            echo "Getting pulls for $image ( image $i of ${#images[@]} )"
             pulls=$(curl -s https://hub.docker.com/v2/repositories/staphb/$image/    | jq -r ".pull_count")
             sleep 3s
             echo "There are $pulls total pulls for $image"
