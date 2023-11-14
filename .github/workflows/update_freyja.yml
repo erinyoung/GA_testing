@@ -45,11 +45,17 @@ jobs:
       - name: Set up Docker Buildx
         id: buildx
         uses: docker/setup-buildx-action@v2
+      
+      - name: checkout this repo for docker build
+        uses: actions/checkout@v3
+        
+      - name: get dockerfile
+        run: |
+          wget https://raw.githubusercontent.com/StaPH-B/docker-builds/master/${{ steps.get_latest_version.outputs.file }}
 
       - name: Cache Docker layers
         uses: actions/cache@v3
         with:
-          repository: StaPH-B/docker-builds
           path: /tmp/.buildx-cache-${{ inputs.cache }}
           key: ${{ runner.os }}-buildx-freyja-${{ github.sha }}
           restore-keys: |
@@ -59,7 +65,6 @@ jobs:
         id: docker_build_to_test
         uses: docker/build-push-action@v3
         with:
-          file: ${{ steps.get_latest_version.outputs.file }}
           target: test
           load: true
           push: false
