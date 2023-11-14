@@ -1,11 +1,11 @@
-name: Check latest versions
+name: Update Freyja
 
 on: 
   workflow_dispatch:
   schedule:
     - cron: '30 7 * * *'
 
-run-name: Comparing latest versions with those in repository
+run-name: Update Freyja
 
 jobs:
   list-repos:
