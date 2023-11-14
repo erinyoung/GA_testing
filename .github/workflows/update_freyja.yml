@@ -32,7 +32,8 @@ jobs:
 #          echo "The version is $version"
 #          echo "version=$version" >> $GITHUB_OUTPUT
                  
-      - name: get_latest_version
+      - name: Get latest version
+        id: freyja_version
         run: | 
           file=$(git log -1 --name-only --format=%cd --date=iso freyja/*/Dockerfile | grep Dockerfile | head -n 1 )
           echo "the latest file is $file"
@@ -51,7 +52,7 @@ jobs:
         
       - name: get dockerfile
         run: |
-          wget https://raw.githubusercontent.com/StaPH-B/docker-builds/master/${{ steps.get_latest_version.outputs.file }}
+          wget https://raw.githubusercontent.com/StaPH-B/docker-builds/master/${{ steps.freyja_version.outputs.file }}
 
       - name: Cache Docker layers
         uses: actions/cache@v3
