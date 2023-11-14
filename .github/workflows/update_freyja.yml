@@ -49,6 +49,7 @@ jobs:
       - name: Cache Docker layers
         uses: actions/cache@v3
         with:
+          repository: StaPH-B/docker-builds
           path: /tmp/.buildx-cache-${{ inputs.cache }}
           key: ${{ runner.os }}-buildx-freyja-${{ github.sha }}
           restore-keys: |
