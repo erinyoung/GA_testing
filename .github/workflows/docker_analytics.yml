@@ -11,9 +11,19 @@ jobs:
     steps:
       - name: repos
         run: |
+          wget https://raw.githubusercontent.com/StaPH-B/docker-builds/master/README.md
+          images=$(grep https://hub.docker.com/r/staphb/ README.md | \
+            sed 's/.*(https:\/\/hub.docker.com\/r\/staphb\///g' | \
+            sed 's/).*//g' | \
+            grep -v "You can" | \
+            grep . | \
+            sort | \
+            uniq)
+          echo "image list :"
+          echo ${images[@]}
+
           date=$(date '+%Y-%m-%d')
-          issue_text="Docker pulls $date:  <br>image,pulls_to_date,num_tags" 
-          images=($(curl -s https://hub.docker.com/v2/repositories/staphb/?page_size=500 | jq -r '.results|.[]|.name' | sort | uniq))
+          issue_text="Docker pulls $date:  <br>image,pulls_to_date,num_tags"
           i=1
           for image in ${images[@]}
           do
@@ -24,6 +34,8 @@ jobs:
             tags=$(curl -s https://hub.docker.com/v2/repositories/staphb/$image/tags | jq -r '.results[].name' | wc -l)
             sleep 3s
             echo "There are $tags total tags for $image"
+            if [ -z "$tags"  ] ; then tags=0 ; fi
+            if [ -z "$pulls" ] ; then pulls=0 ; fi
             issue_text="$issue_text<br>${image},${pulls},${tags}"
             i=$((i+1))
           done
