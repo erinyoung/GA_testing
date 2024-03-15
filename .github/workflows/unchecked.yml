@@ -23,15 +23,15 @@ jobs:
             github_check=$(grep "LABEL" $tool/*/Dockerfile | grep github | grep website | head -n 1 )
             if [ -z "$github_check" ]
             then 
-              echo "<br>- $tool not checked" >> list_of_unchecked_issue.txt
-              grep github $tool/*/Dockerfile | awk '{print "<br>\t-" $0}' >> list_of_unchecked_issue.txt
+              echo "<br>- $tool not checked" >> unchecked.txt
+              grep github $tool/*/Dockerfile | awk '{print "<br>\t-" $0}' >> unchecked.txt
             fi
           done
 
       - name: Creating unchecked version file
         uses: actions/upload-artifact@v4
         with:
-          path: list_of_unchecked_issue.txt
+          path: unchecked.txt
           retention-days: 1
 
   create-issue:
@@ -43,8 +43,8 @@ jobs:
       
       - name: Create text
         run: |
-          cat ./artifact/update-*-issue.txt
-          echo 'ISSUE_TEXT='$(cat ./artifact/list_of_unchecked_issue.txt) >> $GITHUB_ENV
+          cat ./artifact/unchecked.txt
+          echo 'ISSUE_TEXT='$(cat ./artifact/unchecked.txt) >> $GITHUB_ENV
 
       - name: Create Issue
         run: |
