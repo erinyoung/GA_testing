@@ -48,6 +48,6 @@ jobs:
 
       - name: Create Issue
         run: |
-          gh issue create --title "Version check" --body "$ISSUE_TEXT" --repo $GITHUB_REPOSITORY
+          gh issue create --title "Double check" --body "$ISSUE_TEXT" --repo $GITHUB_REPOSITORY
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
