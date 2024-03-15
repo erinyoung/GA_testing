@@ -24,25 +24,6 @@ jobs:
           cat files.json
           echo "json=$(cat files.json)" >> $GITHUB_OUTPUT
 
-      - id: get-unchecked
-        name: get-unchecked
-        run: |
-          for tool in $(ls * -d | grep -v .json | grep -v .md | grep -v dockerfile-template)
-          do 
-            github_check=$(grep "LABEL" $tool/*/Dockerfile | grep github | grep website | head -n 1 )
-            if [ -z "$github_check" ]
-            then 
-              echo "<br>- $tool not checked" >> unchecked-issue.txt
-              grep github $tool/*/Dockerfile | awk '{print "<br>\t-" $0}' >> unchecked-issue.txt
-            fi
-          done
-
-      - name: Creating unchecked version file
-        uses: actions/upload-artifact@v4
-        with:
-          path: unchecked-issue.txt
-          retention-days: 1
-
   get-versions:
     needs: list-repos
     if: needs.list-repos.outputs.json != '[]'
