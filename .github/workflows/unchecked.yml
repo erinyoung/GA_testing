@@ -1,0 +1,52 @@
+name: List Unchecked Tools
+
+on: 
+  workflow_dispatch:
+  schedule:
+    - cron: '30 4 1 * *'
+
+run-name: Listing Unchecked Tools
+
+jobs:
+  list-repos:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: StaPH-B/docker-builds
+
+      - id: get-unchecked
+        name: get-unchecked
+        run: |
+          for tool in $(ls * -d | grep -v .json | grep -v .md | grep -v dockerfile-template)
+          do 
+            github_check=$(grep "LABEL" $tool/*/Dockerfile | grep github | grep website | head -n 1 )
+            if [ -z "$github_check" ]
+            then 
+              echo "<br>- $tool not checked" >> unchecked-issue.txt
+              grep github $tool/*/Dockerfile | awk '{print "<br>\t-" $0}' >> unchecked-issue.txt
+            fi
+          done
+
+      - name: Creating unchecked version file
+        uses: actions/upload-artifact@v4
+        with:
+          path: unchecked-issue.txt
+          retention-days: 1
+
+  create-issue:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Downloading version file
+        uses: actions/download-artifact@v4
+      
+      - name: Create text
+        run: |
+          cat ./artifact/update-*-issue.txt
+          echo 'ISSUE_TEXT='$(cat ./artifact/unchecked-issue.txt) >> $GITHUB_ENV
+
+      - name: Create Issue
+        run: |
+          gh issue create --title "Version check" --body "$ISSUE_TEXT" --repo $GITHUB_REPOSITORY
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
