@@ -13,7 +13,7 @@ jobs:
     outputs:
       json: ${{ steps.set-matrix.outputs.json }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           repository: StaPH-B/docker-builds
           
@@ -24,6 +24,25 @@ jobs:
           cat files.json
           echo "json=$(cat files.json)" >> $GITHUB_OUTPUT
 
+      - id: get-unchecked
+        name: get-unchecked
+        run: |
+          for tool in $(ls * -d | grep -v .json | grep -v .md | grep -v dockerfile-template)
+          do 
+            github_check=$(grep "LABEL" $tool/*/Dockerfile | grep github | grep website | head -n 1 )
+            if [ -z "$github_check" ]
+            then 
+              echo "<br>- $tool not checked" >> unchecked-issue.txt
+              grep github $tool/*/Dockerfile | awk '{print "<br>\t-" $0}' >> unchecked-issue.txt
+            fi
+          done
+
+      - name: Creating unchecked version file
+        uses: actions/upload-artifact@v4
+        with:
+          path: unchecked-issue.txt
+          retention-days: 1
+
   get-versions:
     needs: list-repos
     if: needs.list-repos.outputs.json != '[]'
@@ -32,7 +51,7 @@ jobs:
       matrix:
         repos: ${{ fromJson(needs.list-repos.outputs.json) }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           repository: StaPH-B/docker-builds
       
@@ -78,17 +97,18 @@ jobs:
 
       - name: Creating version file
         if: steps.check_directory.outcome == 'success'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           path: update-${{ steps.parse.outputs.tool }}-${{ steps.latest_release.outputs.release }}-issue.txt
           retention-days: 1
+
 
   create-issue:
     needs: [ list-repos, get-versions ]
     runs-on: ubuntu-latest
     steps:
       - name: Downloading version file
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
       
       - name: Create text
         run: |
