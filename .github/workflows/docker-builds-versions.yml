@@ -105,8 +105,8 @@ jobs:
       
       - name: Create text
         run: |
-          cat ./artifact/update-*-issue.txt
-          echo 'ISSUE_TEXT='$(cat ./artifact/update-*-issue.txt | sort | uniq) >> $GITHUB_ENV
+          cat ./artifact/update*issue.txt
+          echo 'ISSUE_TEXT='$(cat ./artifact/update*issue.txt | sort | uniq) >> $GITHUB_ENV
 
       - name: Create Issue
         run: |
