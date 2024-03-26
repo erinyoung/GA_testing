@@ -49,10 +49,12 @@ jobs:
           tool=$(echo "${{ matrix.repos }}" | cut -f 1 -d "," )
           repo=$(echo "${{ matrix.repos }}" | cut -f 2 -d "," )
           repr=$(echo $repo | sed 's/\//_/g')
-          echo "$tool,$repo,$repr"
+          rand=$RANDOM
+          echo "$tool,$repo,$repr,$rand"
           echo "tool=$tool" >> $GITHUB_OUTPUT
           echo "repo=$repo" >> $GITHUB_OUTPUT
           echo "repr=$repr" >> $GITHUB_OUTPUT
+          echo "rand=$rand" >> $GITHUB_OUTPUT
 
       - name: Get latest release
         uses: rez0n/actions-github-release@main
@@ -79,7 +81,7 @@ jobs:
           elif [ -n "${{ steps.latest_release.outputs.release }}" ]
           then
             echo "No directory for ${{ steps.parse.outputs.tool }} version ${{ steps.latest_release.outputs.release }}!"
-            echo "<br>- The tool ${{ steps.parse.outputs.tool }} is missing version ${{ steps.latest_release.outputs.release }} " > ${{ steps.date.outputs.date }}-update-${{ steps.parse.outputs.tool }}-${{ steps.parse.outputs.repr }}-${{ steps.latest_release.outputs.release }}-issue.txt
+            echo "<br>- The tool ${{ steps.parse.outputs.tool }} is missing version ${{ steps.latest_release.outputs.release }} " > update-${{ steps.date.outputs.date }}-${{ steps.parse.outputs.tool }}-${{ steps.parse.outputs.repr }}-${{ steps.parse.outputs.rand }}-${{ steps.latest_release.outputs.release }}-issue.txt
           else
             echo "No version for ${{ steps.parse.outputs.tool }} with ${{ steps.parse.outputs.repo }} repo!"
           fi 
@@ -89,9 +91,8 @@ jobs:
         continue-on-error: true
         uses: actions/upload-artifact@main
         with:
-          path: ${{ steps.date.outputs.date }}-update-${{ steps.parse.outputs.tool }}-${{ steps.parse.outputs.repr }}-${{ steps.latest_release.outputs.release }}-issue.txt
+          path: update-${{ steps.date.outputs.date }}-${{ steps.parse.outputs.tool }}-${{ steps.parse.outputs.repr }}-${{ steps.parse.outputs.rand }}-${{ steps.latest_release.outputs.release }}-issue.txt
           retention-days: 1
-          overwrite: true
           if-no-files-found: 'ignore'
 
 
@@ -104,8 +105,8 @@ jobs:
       
       - name: Create text
         run: |
-          cat ./artifact/${{ steps.date.outputs.date }}-update-*-issue.txt
-          echo 'ISSUE_TEXT='$(cat ./artifact/${{ steps.date.outputs.date }}-update-*-issue.txt) >> $GITHUB_ENV
+          cat ./artifact/update-*-issue.txt
+          echo 'ISSUE_TEXT='$(cat ./artifact/update-*-issue.txt | sort | uniq) >> $GITHUB_ENV
 
       - name: Create Issue
         run: |
