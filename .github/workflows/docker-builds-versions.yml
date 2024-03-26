@@ -23,6 +23,13 @@ jobs:
           grep github.com */*/Dockerfile | grep LABEL | grep website | sed 's/\"//g' | sed 's/,/\t/g' | sed 's/;/\t/g' |  sed 's/ /\t/g' | cut -f 1,2 | sed 's/\r$//g' | awk '{ split($1, arr, "/"); $1=arr[1] }1' | awk '{ split($2, arr, "/"); $2=arr[4]"/"arr[5] }1' | sort | uniq | awk '{ print $1 "," $2  }' | jq -ncR '[inputs]' > files.json
           cat files.json
           echo "json=$(cat files.json)" >> $GITHUB_OUTPUT
+            - name: Get current date
+      
+      - id: date
+        run: |
+          date=$(date '+%Y-%m-%d')
+          echo "the date is $date"
+          echo "date=$date" >> $GITHUB_OUTPUT
 
   get-versions:
     needs: list-repos
@@ -66,21 +73,21 @@ jobs:
           if [ -d "$dir" ] && [ -n "${{ steps.latest_release.outputs.release }}" ]
           then
             echo "Found directory for ${{ steps.parse.outputs.tool }} version ${{ steps.latest_release.outputs.release }}"
-            touch update-${{ steps.parse.outputs.tool }}-${{ steps.latest_release.outputs.release }}-issue.txt
+            touch ${{ steps.date.outputs.date }}-update-${{ steps.parse.outputs.tool }}-${{ steps.latest_release.outputs.release }}-issue.txt
           elif [ -n "${{ steps.latest_release.outputs.release }}" ]
           then
             echo "No directory for ${{ steps.parse.outputs.tool }} version ${{ steps.latest_release.outputs.release }}!"
-            echo "<br>- The tool ${{ steps.parse.outputs.tool }} is missing version ${{ steps.latest_release.outputs.release }} " > update-${{ steps.parse.outputs.tool }}-${{ steps.latest_release.outputs.release }}-issue.txt
+            echo "<br>- The tool ${{ steps.parse.outputs.tool }} is missing version ${{ steps.latest_release.outputs.release }} " > ${{ steps.date.outputs.date }}-update-${{ steps.parse.outputs.tool }}-${{ steps.latest_release.outputs.release }}-issue.txt
           else
             echo "No version for ${{ steps.parse.outputs.tool }} with ${{ steps.parse.outputs.repo }} repo!"
-            touch update-${{ steps.parse.outputs.tool }}-${{ steps.latest_release.outputs.release }}-issue.txt
+            touch ${{ steps.date.outputs.date }}-update-${{ steps.parse.outputs.tool }}-${{ steps.latest_release.outputs.release }}-issue.txt
           fi 
 
       - name: Creating version file
         if: steps.check_directory.outcome == 'success'
         uses: actions/upload-artifact@v4
         with:
-          path: update-${{ steps.parse.outputs.tool }}-${{ steps.latest_release.outputs.release }}-issue.txt
+          path: ${{ steps.date.outputs.date }}-update-${{ steps.parse.outputs.tool }}-${{ steps.latest_release.outputs.release }}-issue.txt
           retention-days: 1
 
 
@@ -93,7 +100,7 @@ jobs:
       
       - name: Create text
         run: |
-          cat ./artifact/update-*-issue.txt
+          cat ./artifact/${{ steps.date.outputs.date }}-update-*-issue.txt
           echo 'ISSUE_TEXT='$(cat ./artifact/update-*-issue.txt) >> $GITHUB_ENV
 
       - name: Create Issue
