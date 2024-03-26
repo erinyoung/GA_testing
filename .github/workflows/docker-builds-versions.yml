@@ -13,7 +13,7 @@ jobs:
     outputs:
       json: ${{ steps.set-matrix.outputs.json }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@main
         with:
           repository: StaPH-B/docker-builds
           
@@ -48,13 +48,9 @@ jobs:
         run: |
           tool=$(echo "${{ matrix.repos }}" | cut -f 1 -d "," )
           repo=$(echo "${{ matrix.repos }}" | cut -f 2 -d "," )
-          repr=$(echo $repo | sed 's/\//_/g')
-          rand=$RANDOM
-          echo "$tool,$repo,$repr,$rand"
+          echo "$tool,$repo"
           echo "tool=$tool" >> $GITHUB_OUTPUT
           echo "repo=$repo" >> $GITHUB_OUTPUT
-          echo "repr=$repr" >> $GITHUB_OUTPUT
-          echo "rand=$rand" >> $GITHUB_OUTPUT
 
       - name: Get latest release
         uses: rez0n/actions-github-release@main
@@ -64,6 +60,16 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           repository: ${{ steps.parse.outputs.repo }}
           type: "stable"
+
+      - name: Create filename
+        if: steps.latest_release.outcome == 'success'
+        id: filename
+        run: |
+          rand=$RANDOM
+          repo=$(echo "${{ matrix.repos }}" | cut -f 2 -d "," | sed 's/\//_/g')
+          file=update-${{ steps.date.outputs.date }}-${{ steps.parse.outputs.tool }}-${repo}-${rand }-${{ steps.latest_release.outputs.release }}-issue.txt
+          echo $file
+          echo "file=$file" >> $GITHUB_OUTPUT
           
       - name: Check Directory
         if: steps.latest_release.outcome == 'success'
@@ -81,15 +87,15 @@ jobs:
           elif [ -n "${{ steps.latest_release.outputs.release }}" ]
           then
             echo "No directory for ${{ steps.parse.outputs.tool }} version ${{ steps.latest_release.outputs.release }}!"
-            echo "<br>- The tool ${{ steps.parse.outputs.tool }} is missing version ${{ steps.latest_release.outputs.release }} " > update-${{ steps.date.outputs.date }}-${{ steps.parse.outputs.tool }}-${{ steps.parse.outputs.repr }}-${{ steps.parse.outputs.rand }}-${{ steps.latest_release.outputs.release }}-issue.txt
+            echo "<br>- The tool ${{ steps.parse.outputs.tool }} is missing version ${{ steps.latest_release.outputs.release }} " > ${{ steps.filename.outputs.file }}
           else
             echo "No version for ${{ steps.parse.outputs.tool }} with ${{ steps.parse.outputs.repo }} repo!"
-          fi 
+          fi
 
       - name: Creating version file
         if: steps.check_directory.outcome == 'success'
         continue-on-error: true
-        uses: actions/upload-artifact@main
+        uses: actions/upload-artifact@v3
         with:
           path: update-${{ steps.date.outputs.date }}-${{ steps.parse.outputs.tool }}-${{ steps.parse.outputs.repr }}-${{ steps.parse.outputs.rand }}-${{ steps.latest_release.outputs.release }}-issue.txt
           retention-days: 1
@@ -101,7 +107,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Downloading version file
-        uses: actions/download-artifact@main
+        uses: actions/download-artifact@v3
       
       - name: Create text
         run: |
