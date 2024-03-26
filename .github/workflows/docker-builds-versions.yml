@@ -86,6 +86,7 @@ jobs:
 
       - name: Creating version file
         if: steps.check_directory.outcome == 'success'
+        continue-on-error: true
         uses: actions/upload-artifact@main
         with:
           path: ${{ steps.date.outputs.date }}-update-${{ steps.parse.outputs.tool }}-${{ steps.parse.outputs.repr }}-${{ steps.latest_release.outputs.release }}-issue.txt
