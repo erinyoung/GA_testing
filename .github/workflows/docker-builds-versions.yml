@@ -23,13 +23,6 @@ jobs:
           grep github.com */*/Dockerfile | grep LABEL | grep website | sed 's/\"//g' | sed 's/,/\t/g' | sed 's/;/\t/g' |  sed 's/ /\t/g' | cut -f 1,2 | sed 's/\r$//g' | awk '{ split($1, arr, "/"); $1=arr[1] }1' | awk '{ split($2, arr, "/"); $2=arr[4]"/"arr[5] }1' | sort | uniq | awk '{ print $1 "," $2  }' | jq -ncR '[inputs]' > files.json
           cat files.json
           echo "json=$(cat files.json)" >> $GITHUB_OUTPUT
-      
-      - id: date
-        name: Get current date
-        run: |
-          date=$(date '+%Y-%m-%d')
-          echo "the date is $date"
-          echo "date=$date" >> $GITHUB_OUTPUT
 
   get-versions:
     needs: list-repos
@@ -67,7 +60,8 @@ jobs:
         run: |
           rand=$RANDOM
           repo=$(echo "${{ matrix.repos }}" | cut -f 2 -d "," | sed 's/\//_/g')
-          file=update-${{ steps.date.outputs.date }}-${{ steps.parse.outputs.tool }}-${repo}-${rand }-${{ steps.latest_release.outputs.release }}-issue.txt
+          date=$(date '+%Y-%m-%d')
+          file=update.$date.${{ steps.parse.outputs.tool }}.$repo.$rand.${{ steps.latest_release.outputs.release }}.issue.txt
           echo $file
           echo "file=$file" >> $GITHUB_OUTPUT
           
