@@ -49,6 +49,7 @@ jobs:
           tool=$(echo "${{ matrix.repos }}" | cut -f 1 -d "," )
           repo=$(echo "${{ matrix.repos }}" | cut -f 2 -d "," )
           repr=$(echo $repo | sed 's/\//_/g')
+          echo "$tool,$repo,$repr"
           echo "tool=$tool" >> $GITHUB_OUTPUT
           echo "repo=$repo" >> $GITHUB_OUTPUT
           echo "repr=$repr" >> $GITHUB_OUTPUT
