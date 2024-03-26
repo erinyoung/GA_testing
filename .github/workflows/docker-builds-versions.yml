@@ -39,7 +39,7 @@ jobs:
       matrix:
         repos: ${{ fromJson(needs.list-repos.outputs.json) }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@main
         with:
           repository: StaPH-B/docker-builds
       
@@ -85,7 +85,7 @@ jobs:
 
       - name: Creating version file
         if: steps.check_directory.outcome == 'success'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           path: ${{ steps.date.outputs.date }}-update-${{ steps.parse.outputs.tool }}-${{ steps.latest_release.outputs.release }}-issue.txt
           retention-days: 1
@@ -96,12 +96,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Downloading version file
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@main
       
       - name: Create text
         run: |
           cat ./artifact/${{ steps.date.outputs.date }}-update-*-issue.txt
-          echo 'ISSUE_TEXT='$(cat ./artifact/update-*-issue.txt) >> $GITHUB_ENV
+          echo 'ISSUE_TEXT='$(cat ./artifact/${{ steps.date.outputs.date }}-update-*-issue.txt) >> $GITHUB_ENV
 
       - name: Create Issue
         run: |
