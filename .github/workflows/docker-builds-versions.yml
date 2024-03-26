@@ -48,8 +48,10 @@ jobs:
         run: |
           tool=$(echo "${{ matrix.repos }}" | cut -f 1 -d "," )
           repo=$(echo "${{ matrix.repos }}" | cut -f 2 -d "," )
+          repr=$(echo $repo | sed 's/\//_/g')
           echo "tool=$tool" >> $GITHUB_OUTPUT
           echo "repo=$repo" >> $GITHUB_OUTPUT
+          echo "repr=$repr" >> $GITHUB_OUTPUT
 
       - name: Get latest release
         uses: rez0n/actions-github-release@main
@@ -73,22 +75,22 @@ jobs:
           if [ -d "$dir" ] && [ -n "${{ steps.latest_release.outputs.release }}" ]
           then
             echo "Found directory for ${{ steps.parse.outputs.tool }} version ${{ steps.latest_release.outputs.release }}"
-            touch ${{ steps.date.outputs.date }}-update-${{ steps.parse.outputs.tool }}-${{ steps.latest_release.outputs.release }}-issue.txt
           elif [ -n "${{ steps.latest_release.outputs.release }}" ]
           then
             echo "No directory for ${{ steps.parse.outputs.tool }} version ${{ steps.latest_release.outputs.release }}!"
-            echo "<br>- The tool ${{ steps.parse.outputs.tool }} is missing version ${{ steps.latest_release.outputs.release }} " > ${{ steps.date.outputs.date }}-update-${{ steps.parse.outputs.tool }}-${{ steps.latest_release.outputs.release }}-issue.txt
+            echo "<br>- The tool ${{ steps.parse.outputs.tool }} is missing version ${{ steps.latest_release.outputs.release }} " > ${{ steps.date.outputs.date }}-update-${{ steps.parse.outputs.tool }}-${{ steps.parse.outputs.repr }}-${{ steps.latest_release.outputs.release }}-issue.txt
           else
             echo "No version for ${{ steps.parse.outputs.tool }} with ${{ steps.parse.outputs.repo }} repo!"
-            touch ${{ steps.date.outputs.date }}-update-${{ steps.parse.outputs.tool }}-${{ steps.latest_release.outputs.release }}-issue.txt
           fi 
 
       - name: Creating version file
         if: steps.check_directory.outcome == 'success'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@main
         with:
-          path: ${{ steps.date.outputs.date }}-update-${{ steps.parse.outputs.tool }}-${{ steps.latest_release.outputs.release }}-issue.txt
+          path: ${{ steps.date.outputs.date }}-update-${{ steps.parse.outputs.tool }}-${{ steps.parse.outputs.repr }}-${{ steps.latest_release.outputs.release }}-issue.txt
           retention-days: 1
+          overwrite: true
+          if-no-files-found: 'ignore'
 
 
   create-issue:
