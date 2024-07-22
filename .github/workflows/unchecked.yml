@@ -24,7 +24,7 @@ jobs:
             if [ -z "$github_check" ]
             then 
               echo "<br>- $tool not checked" >> unchecked.txt
-              grep github $tool/*/Dockerfile | awk '{print "<br>\t-" $0}' >> unchecked.txt
+              grep github $tool/*/Dockerfile | awk '{print "<br>\t-" $0}' | head -n 5 >> unchecked.txt
             fi
           done
 
