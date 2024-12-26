@@ -7,3 +7,13 @@ etoki is missing version 1.3
 gambit is missing version
 genovi is missing version 0.2.16
 heatcluster is missing version v1.2.5.20240904
+integron_finder is missing version v2.0.2
+kaptive is missing version 1.0
+krakentools is missing version v1.2
+masurca is missing version v4.1.2
+mummer is missing version v4.0.0rc1
+mykrobe is missing version v20210201
+pavian is missing version v1.0
+shigatyper is missing version conda-package-2.0.5
+shovill-se is missing version v1.1.0se
+
