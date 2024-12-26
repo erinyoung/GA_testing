@@ -16,4 +16,7 @@ mykrobe is missing version v20210201
 pavian is missing version v1.0
 shigatyper is missing version conda-package-2.0.5
 shovill-se is missing version v1.1.0se
-
+lrge is missing version lrge-0.1.3
+meningotype is missing version v0.8.2-beta
+grandeur_ref is missing version v4.5.24310
+ncbi-amrfinderplus is missing version amrfinder_v4.0.3
