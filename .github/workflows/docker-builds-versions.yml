@@ -106,7 +106,9 @@ jobs:
       - name: Create text
         run: |
           cat ./artifact/update*issue.txt
-          echo 'ISSUE_TEXT='$(cat ./artifact/update*issue.txt | sort | uniq) >> $GITHUB_ENV
+          wget https://raw.githubusercontent.com/erinyoung/GA_testing/refs/heads/main/ignore.txt 
+          cat ./artifact/update*issue.txt | grep -vf ignore.txt
+          echo 'ISSUE_TEXT='$(cat ./artifact/update*issue.txt | grep -vf ignore.txt | sort | uniq) >> $GITHUB_ENV
 
       - name: Create Issue
         run: |
