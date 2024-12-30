@@ -18,13 +18,13 @@ jobs:
       - id: get-unchecked
         name: get-unchecked
         run: |
-          for tool in $(ls * -d | grep -v .json | grep -v .md | grep -v dockerfile-template)
+          for tool in $(ls build-files/*/*/Dockerfile | cut -f 2 -d /)
           do 
-            github_check=$(grep "LABEL" $tool/*/Dockerfile | grep github | grep website | head -n 1 )
+            github_check=$(grep "LABEL" build-files/$tool/*/Dockerfile | grep github | grep website | head -n 1 )
             if [ -z "$github_check" ]
             then 
               echo "<br>- $tool not checked" >> unchecked.txt
-              grep github $tool/*/Dockerfile | awk '{print "<br>\t-" $0}' | head -n 5 >> unchecked.txt
+              grep github build-files/$tool/*/Dockerfile | awk '{print "<br>\t-" $0}' | head -n 5 >> unchecked.txt
             fi
           done
 
