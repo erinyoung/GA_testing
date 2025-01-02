@@ -20,7 +20,7 @@ jobs:
       - id: set-matrix
         name: set-matrix
         run: |
-          grep github.com build-files/*/*/Dockerfile | grep LABEL | grep website | sed 's/\"//g' | sed 's/,/\t/g' | sed 's/;/\t/g' |  sed 's/ /\t/g' | cut -f 1,2 | sed 's/\r$//g' | awk '{ split($1, arr, "/"); $1=arr[1] }1' | awk '{ split($2, arr, "/"); $2=arr[4]"/"arr[5] }1' | sort | uniq | awk '{ print $1 "," $2  }' | jq -ncR '[inputs]' > files.json
+          grep github.com build-files/*/*/Dockerfile | grep LABEL | grep website | sed 's/\"//g' | sed 's/,/\t/g' | sed 's/;/\t/g' |  sed 's/ /\t/g' | cut -f 1,2 | sed 's/\r$//g' | awk '{ split($1, arr, "/"); $1=arr[2] }1' | awk '{ split($2, arr, "/"); $2=arr[4]"/"arr[5] }1' | sort | uniq | awk '{ print $1 "," $2 }' | jq -ncR '[inputs]' > files.json
           cat files.json
           echo "json=$(cat files.json)" >> $GITHUB_OUTPUT
 
@@ -71,9 +71,9 @@ jobs:
         run: |
           release=$(echo ${{ steps.latest_release.outputs.release }} | sed 's/^v//g' | sed 's/^V//g')
 
-          ls -d ./${{ steps.parse.outputs.tool }}/*
+          ls -d ./build-files/${{ steps.parse.outputs.tool }}/*
 
-          dir=$(ls -d ./${{ steps.parse.outputs.tool }}/* | grep ${release} | head -n 1 )
+          dir=$(ls -d ./build-files/${{ steps.parse.outputs.tool }}/* | grep ${release} | head -n 1 )
 
           if [ -d "$dir" ] && [ -n "${{ steps.latest_release.outputs.release }}" ]
           then
