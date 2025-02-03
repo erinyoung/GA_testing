@@ -89,7 +89,7 @@ jobs:
       - name: Creating version file
         if: steps.check_directory.outcome == 'success'
         continue-on-error: true
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@main
         with:
           path: ${{ steps.filename.outputs.file }}
           retention-days: 1
@@ -101,7 +101,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Downloading version file
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@main
       
       - name: Create text
         run: |
