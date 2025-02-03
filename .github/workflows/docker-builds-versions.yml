@@ -60,7 +60,7 @@ jobs:
         run: |
           rand=$RANDOM
           repo=$(echo "${{ matrix.repos }}" | cut -f 2 -d "," | sed 's/\//_/g')
-          date=$(date '+%Y-%m-%d')
+          date=$(date '+%Y-%m-%d-%H-%M-%S')
           file=update.$date.${{ steps.parse.outputs.tool }}.$repo.$rand.${{ steps.latest_release.outputs.release }}.issue.txt
           echo $file
           echo "file=$file" >> $GITHUB_OUTPUT
