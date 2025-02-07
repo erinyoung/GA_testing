@@ -91,7 +91,7 @@ jobs:
       - name: list_unversioned
         id: list_unversioned
         run: |
-          cat all_repos.txt | awk '{print "<br>- " $0 " is not checked"}' >> issue_text.txt
+          cat all_repos.txt | awk '{print "<br>- The tool " $0 " is not checked"}' >> issue_text.txt
 
       - name: check_text
         id: check_text
