@@ -43,6 +43,8 @@ jobs:
 
       - id: find_latest
         name: find_latest
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           while read line
           do
