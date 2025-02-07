@@ -1,0 +1,102 @@
+name: Compare latest versions
+
+on: 
+  workflow_dispatch:
+  schedule:
+    - cron: '30 4 1 * *'
+
+run-name: Comparing latest versions with those in repository
+
+jobs:
+  list-repos:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@main
+        with:
+          repository: StaPH-B/docker-builds
+          
+      - id: list_repos
+        name: list_repos
+        run: |
+          grep github.com build-files/*/*/Dockerfile | \
+            grep LABEL | \
+            grep website | \
+            sed 's/\"//g' | \
+            sed 's/,/\t/g' | \
+            sed 's/;/\t/g' | \
+            sed 's/ /\t/g' | \
+            cut -f 1,2 | \
+            sed 's/\r$//g' | \
+            awk '{ split($1, arr, "/"); $1=arr[2] }1' | \
+            awk '{ split($2, arr, "/"); $2=arr[4]"/"arr[5] }1' | \
+            sort | \
+            uniq | \
+            awk '{ print $1 "," $2 }' > \
+            repos.txt
+
+      - id: check_repos
+        name: check_repos
+        run: | 
+          cat repos.txt
+
+          ls build-files/* -d | cut -f 2 -d / > all_repos.txt
+
+      - id: find_latest
+        name: find_latest
+        run: |
+          while read line
+          do
+            tool=$(echo ${line} | cut -f 1 -d "," )
+            repo=$(echo ${line} | cut -f 2 -d "," )
+            echo "the line is ${line}"
+            echo "the tool is $tool found at repo $repo"
+            release=$(gh api repos/${repo}/releases/latest --jq '.tag_name' | sed 's/^v//g' | sed 's/^V//g' | grep -v Not)
+            if [ -z "${release}" ] 
+            then 
+              release=$(gh api repos/${repo}/tags --jq '.[].name' | sort -V | grep -v VDB-4760-2.9.7 | \
+                tail -n 1 | \
+                grep -v Not) 
+            fi
+
+            if [ -n "${release}" ]
+            then
+              echo "the latest release is ${release}"
+              dir=$(ls -d ./build-files/${tool}/* | grep ${release} | head -n 1)
+
+              grep -v $tool all_repos.txt > all_repos.txt.tmp
+              mv all_repos.txt.tmp all_repos.txt
+
+              if [ -d "$dir" ]
+              then
+                echo "Found directory for ${tool} version ${release}"
+              else 
+                echo "No directory for ${tool} version ${release}!"
+                echo "<br>- The tool ${tool} is missing version ${release}" >> issue_text.txt
+              fi
+            else
+              echo "No version for ${tool} with ${repo} repo!"
+            fi
+          done < repos.txt
+
+      - name: list_unversioned
+        id: list_unversioned
+        run: |
+          echo "Repositories that aren't checked" >> issue_text.txt
+          cat all_repos.txt | awk '{print "<br>- " $0}' >> issue_text.txt
+
+      - name: check_text
+        id: check_text
+        run: cat issue_text.txt
+
+      - name: Create text
+        run: |
+          wget https://raw.githubusercontent.com/erinyoung/GA_testing/refs/heads/main/ignore.txt
+          grep . ignore.txt > ignore.tmp
+          cat issue_text.txt | grep -vf ignore.tmp
+          echo 'ISSUE_TEXT='$(cat issue_text.txt | grep -vf ignore.tmp | sort | uniq) >> $GITHUB_ENV
+
+      - name: Create Issue
+        run: |
+          gh issue create --title "Version comparison" --body "$ISSUE_TEXT" --repo $GITHUB_REPOSITORY
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
