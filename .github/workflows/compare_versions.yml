@@ -52,12 +52,20 @@ jobs:
             repo=$(echo ${line} | cut -f 2 -d "," )
             echo "the line is ${line}"
             echo "the tool is $tool found at repo $repo"
-            release=$(gh api repos/${repo}/releases/latest --jq '.tag_name' | sed 's/^v//g' | sed 's/^V//g' | grep -v Not)
+            release=$(gh api repos/${repo}/releases/latest --jq '.tag_name' | \
+              sed 's/^v//g' | \
+              sed 's/^V//g' | \
+              grep -v Not \
+              || true)
+              
             if [ -z "${release}" ] 
             then 
-              release=$(gh api repos/${repo}/tags --jq '.[].name' | sort -V | grep -v VDB-4760-2.9.7 | \
+              release=$(gh api repos/${repo}/tags --jq '.[].name' | \
+                sort -V | \
+                grep -v VDB-4760-2.9.7 | \
                 tail -n 1 | \
-                grep -v Not) 
+                grep -v Not \
+                || true) 
             fi
 
             if [ -n "${release}" ]
