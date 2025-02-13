@@ -92,7 +92,8 @@ jobs:
               sed 's/^V//g' | \
               sed 's/amrfinder_v//g' | \
               sed 's/quast_//g' | \
-              sed 's/vadr-//g' )
+              sed 's/vadr-//g' | \
+              sed 's/-beta//g' )
 
             if [ -n "${release}" ]
             then
@@ -174,8 +175,10 @@ jobs:
         run: |
           wget https://raw.githubusercontent.com/erinyoung/GA_testing/refs/heads/main/ignore.txt
           grep . ignore.txt > ignore.tmp
-          cat issue_text.txt | grep -vf ignore.tmp
-          echo 'ISSUE_TEXT='$(cat issue_text.txt | grep -vf ignore.tmp | sort | uniq) >> $GITHUB_ENV
+          cat issue_text.txt | grep -vf ignore.tmp | sort | uniq > issue_filtered.txt
+          wordcount=$(wc -l issue_filtered.txt | awk {print $1})
+          echo "There are ${wc} images that need updates" >> issue_filtered.txt
+          echo 'ISSUE_TEXT='$(cat issue_filtered.txt) >> $GITHUB_ENV
 
       - name: Create Issue
         run: |
