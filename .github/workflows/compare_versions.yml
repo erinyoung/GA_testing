@@ -15,8 +15,8 @@ jobs:
         with:
           repository: StaPH-B/docker-builds
           
-      - id: list_repos
-        name: list_repos
+      - id: list_github_repos
+        name: list_github_repos
         run: |
           grep github.com build-files/*/*/Dockerfile | \
             grep LABEL | \
@@ -32,17 +32,36 @@ jobs:
             sort | \
             uniq | \
             awk '{ print $1 "," $2 }' > \
-            repos.txt
+            github_repos.txt
+
+      - id: list_gitlab_repos
+        name: list_gitlab_repos
+        run: |
+          grep gitlab.com build-files/*/*/Dockerfile | \
+            grep LABEL | \
+            grep website | \
+            sed 's/\"//g' | \
+            sed 's/,/\t/g' | \
+            sed 's/;/\t/g' | \
+            sed 's/ /\t/g' | \
+            cut -f 1,2 | \
+            sed 's/\r$//g' | \
+            awk '{ split($1, arr, "/"); $1=arr[2] }1' | \
+            awk '{ split($2, arr, "/"); $2=arr[4]"/"arr[5] }1' | \
+            sort | \
+            uniq | \
+            awk '{ print $1 "," $2 }' > \
+            gitlab_repos.txt
 
       - id: check_repos
         name: check_repos
         run: | 
-          cat repos.txt
+          cat github_repos.txt
 
           ls build-files/* -d | cut -f 2 -d / > all_repos.txt
 
-      - id: find_latest
-        name: find_latest
+      - id: find_latest_on_github
+        name: find_latest_on_github
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -53,10 +72,9 @@ jobs:
             echo "the line is ${line}"
             echo "the tool is $tool found at repo $repo"
             release=$(gh api repos/${repo}/releases/latest --jq '.tag_name' | \
-              sed 's/^v//g' | \
-              sed 's/^V//g' | \
-              grep -v Not \
-              || true)
+              grep -v Not | \
+              grep -v latest \
+              || true )
               
             if [ -z "${release}" ] 
             then 
@@ -65,8 +83,16 @@ jobs:
                 grep -v VDB-4760-2.9.7 | \
                 tail -n 1 | \
                 grep -v Not \
-                || true) 
+                || true ) 
             fi
+
+            release=$(echo $release | \
+              sed 's/-docker5//g' | \
+              sed 's/^v//g' | \
+              sed 's/^V//g' | \
+              sed 's/amrfinder_v//g' | \
+              sed 's/quast_//g' | \
+              sed 's/vadr-//g' )
 
             if [ -n "${release}" ]
             then
@@ -86,7 +112,54 @@ jobs:
             else
               echo "No version for ${tool} with ${repo} repo!"
             fi
-          done < repos.txt
+          done < github_repos.txt
+
+      - name: find_latest_on_gitlab
+        run: |
+          while read line
+          do
+            tool=$(echo ${line} | cut -f 1 -d "," )
+            repo=$(echo ${line} | cut -f 2 -d "," )
+            echo "the line is ${line}"
+            echo "the tool is $tool found at repo $repo"
+            project_id=$(curl \
+              --silent \
+              "https://gitlab.com/api/v4/projects/$(echo -n '${repo}' | jq -sRr @uri)" \
+              | jq '.id')
+            echo "The project id for ${repo} is ${project_id}"
+            
+            release=$(curl -s https://gitlab.com/api/v4/projects/1544766/releases/ | \
+              jq '.[]' | \
+              jq -r '.name' | \
+              sort -V | \
+              tail -n 1 | \
+              grep -v Not | \
+              grep -v latest \
+              || true )
+
+            release=$(echo $release | \
+              sed 's/^v//g' | \
+              sed 's/^V//g' )
+
+            if [ -n "${release}" ]
+            then
+              echo "the latest release is ${release}"
+              dir=$(ls -d ./build-files/${tool}/* | grep ${release} | head -n 1)
+
+              grep -v $tool all_repos.txt > all_repos.txt.tmp
+              mv all_repos.txt.tmp all_repos.txt
+
+              if [ -d "$dir" ]
+              then
+                echo "Found directory for ${tool} version ${release}"
+              else 
+                echo "No directory for ${tool} version ${release}!"
+                echo "<br>- The tool ${tool} is missing version ${release}" >> issue_text.txt
+              fi
+            else
+              echo "No version for ${tool} with ${repo} repo!"
+            fi
+          done < gitlab_repos.txt      
 
       - name: list_unversioned
         id: list_unversioned
