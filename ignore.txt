@@ -31,6 +31,8 @@ The tool irma is not checked
 The tool ksnp3
 The tool parallel-perl
 The tool shovill-se is missing version 1.1.0se
+The tool krakentools is missing version 1.2
+The tool masurca is missing version 4.1.2
 The tool grandeur_ref
 The tool bandage is not checked
 The tool masurca is missing version 4.1.2
