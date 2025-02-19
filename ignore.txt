@@ -1,6 +1,7 @@
 tool artic-ncov2019 is missing version v1.5.8
 The tool artic-ncov2019
 tool artic-ncov2019-epi2me is missing version v1.2.2
+The tool meningotype is missing version 0.8.2
 The tool auspice
 The tool canu-racon
 The tool mafft is missing version 5.8.2
