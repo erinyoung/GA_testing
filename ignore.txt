@@ -15,6 +15,7 @@ kaptive is missing version 1.0
 krakentools is missing version v1.2
 masurca is missing version v4.1.2
 mummer is missing version v4.0.0rc1
+mykrobe is missing version 20210201
 mykrobe is missing version v20210201
 pavian is missing version v1.0
 shigatyper is missing version conda-package-2.0.5
