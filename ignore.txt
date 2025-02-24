@@ -26,6 +26,7 @@ grandeur_ref is missing version v4.5.24310
 ncbi-amrfinderplus is missing version amrfinder_v4.0.3
 The tool berrywood-report-env
 The tool cbird-util
+The tool shigeifinder is missing version 1.3.4
 The tool circos
 The tool cluster-report-env
 The tool cutshaw-report-env
