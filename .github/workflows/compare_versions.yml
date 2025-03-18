@@ -162,6 +162,45 @@ jobs:
             fi
           done < gitlab_repos.txt      
 
+      - name: check_blast
+        id: check_blast
+        run: | 
+         release=$(curl -s https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/ | \
+           grep -oP 'ncbi-blast-\K[0-9]+\.[0-9]+\.[0-9]+' | \
+           sort -V | \
+           tail -1)
+          
+          dir=$(ls -d ./build-files/blast/* | grep ${release} | head -n 1)
+          grep -v blast all_repos.txt > all_repos.txt.tmp
+          mv all_repos.txt.tmp all_repos.txt
+          if [ -d "$dir" ]
+          then
+            echo "Found directory for blast version ${release}"
+          else 
+            echo "No directory for blast version ${release}!"
+            echo "<br>- The tool blast is missing version ${release}" >> issue_text.txt
+          fi
+
+      - name: check_bbmap
+        id: check_bbmap
+        run: |
+          release=$(curl -s "https://sourceforge.net/projects/bbmap/files/" | \
+            grep -oP '(?<=/projects/bbmap/files/)[^/"]+' | \
+            grep -oP '[0-9]+\.[0-9]+' | \
+            sort -V | \
+            tail -n1)
+          
+          dir=$(ls -d ./build-files/bbtools/* | grep ${release} | head -n 1)
+          grep -v bbtools all_repos.txt > all_repos.txt.tmp
+          mv all_repos.txt.tmp all_repos.txt
+          if [ -d "$dir" ]
+          then
+            echo "Found directory for bbtools version ${release}"
+          else 
+            echo "No directory for bbtools version ${release}!"
+            echo "<br>- The tool bbtools is missing version ${release}" >> issue_text.txt
+          fi
+
       - name: list_unversioned
         id: list_unversioned
         run: |
