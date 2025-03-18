@@ -1,13 +1,12 @@
-tool artic-ncov2019 is missing version v1.5.8
 The tool artic-ncov2019
-tool artic-ncov2019-epi2me is missing version v1.2.2
+The tool artic-ncov2019-epi2me
 The tool meningotype is missing version 0.8.2
 The tool auspice
 The tool canu-racon
 The tool mafft is missing version 5.8.2
 circlator is missing version v1.5.5-docker5
 etoki is missing version 1.3
-gambit is missing version
+The tool gambit
 genovi is missing version 0.2.16
 heatcluster is missing version v1.2.5.20240904
 integron_finder is missing version v2.0.2
@@ -22,7 +21,7 @@ shigatyper is missing version conda-package-2.0.5
 shovill-se is missing version v1.1.0se
 lrge is missing version lrge-0.1.3
 meningotype is missing version v0.8.2-beta
-grandeur_ref is missing version v4.5.24310
+The tool grandeur_ref
 ncbi-amrfinderplus is missing version amrfinder_v4.0.3
 The tool berrywood-report-env
 The tool cbird-util
@@ -45,3 +44,5 @@ The tool pavian
 The tool vigor4 is missing version 3545356
 The tool polkapox
 The tool tostadas
+The tool mugsy
+The tool emboss
