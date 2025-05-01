@@ -201,6 +201,154 @@ jobs:
             echo "<br>- The tool bbtools is missing version ${release}" >> issue_text.txt
           fi
 
+      - name: check_busco
+        id: check_busco
+        run: |
+            release=$(curl --silent "https://gitlab.com/api/v4/projects/1544766/releases" | jq -r '.[0].tag_name')
+            
+            dir=$(ls -d ./build-files/busco/* | grep ${release} | head -n 1)
+            grep -v busco all_repos.txt > all_repos.txt.tmp
+            mv all_repos.txt.tmp all_repos.txt
+            if [ -d "$dir" ]
+            then
+              echo "Found directory for busco version ${release}"
+            else 
+              echo "No directory for busco version ${release}!"
+              echo "<br>- The tool busco is missing version ${release}" >> issue_text.txt
+            fi
+
+
+      - name: check_checkv
+        id: check_checkv
+        run: |
+          release=$(git ls-remote --tags https://bitbucket.org/berkeleylab/checkv.git | \
+            awk -F/ '{print $NF}' | \
+            sort -V | \
+            grep -v "\^" | \
+            sed 's/v//g' | \
+            tail -n 1 )
+                
+          dir=$(ls -d ./build-files/checkv/* | grep ${release} | head -n 1)
+          grep -v checkv all_repos.txt > all_repos.txt.tmp
+          mv all_repos.txt.tmp all_repos.txt
+          if [ -d "$dir" ]
+          then
+            echo "Found directory for checkv version ${release}"
+          else 
+            echo "No directory for checkv version ${release}!"
+            echo "<br>- The tool checkv is missing version ${release}" >> issue_text.txt
+          fi
+
+
+      - name: check_kma
+        id: check_kma
+        run: |
+            release=$(git ls-remote --tags https://bitbucket.org/genomicepidemiology/kma.git | \
+              awk -F/ '{print $NF}' | \
+              sort -V | \
+              grep -v "\^" | \
+              sed 's/^v//g' | \
+              tail -n 1 )
+                  
+            dir=$(ls -d ./build-files/kma/* | grep ${release} | head -n 1)
+            grep -v kma all_repos.txt > all_repos.txt.tmp
+            mv all_repos.txt.tmp all_repos.txt
+            if [ -d "$dir" ]
+            then
+              echo "Found directory for kma version ${release}"
+            else 
+              echo "No directory for kma version ${release}!"
+              echo "<br>- The tool kma is missing version ${release}" >> issue_text.txt
+            fi
+
+      - name: check_plasmidfinder
+        id: check_plasmidfinder
+        run: |
+            release=$(git ls-remote --tags https://bitbucket.org/genomicepidemiology/plasmidfinder.git | \
+                awk -F/ '{print $NF}' | \
+                sort -V | \
+                grep -v "\^" | \
+                sed 's/v//g' | \
+                tail -n 1 )
+                    
+              dir=$(ls -d ./build-files/plasmidfinder/* | grep ${release} | head -n 1)
+              grep -v plasmidfinder all_repos.txt > all_repos.txt.tmp
+              mv all_repos.txt.tmp all_repos.txt
+              if [ -d "$dir" ]
+              then
+                echo "Found directory for plasmidfinder version ${release}"
+              else 
+                echo "No directory for plasmidfinder version ${release}!"
+                echo "<br>- The tool plasmidfinder is missing version ${release}" >> issue_text.txt
+              fi
+
+
+      - name: check_resfinder
+        id: check_resfinder
+        run: |
+          release=$(git ls-remote --tags https://bitbucket.org/genomicepidemiology/resfinder.git | \
+            awk -F/ '{print $NF}' | \
+            sort -V | \
+            grep -v test | \
+            grep -v "\^" | \
+            sed 's/v//g' | \
+            tail -n 1 )
+                
+          dir=$(ls -d ./build-files/resfinder/* | grep ${release} | head -n 1)
+          grep -v resfinder all_repos.txt > all_repos.txt.tmp
+          mv all_repos.txt.tmp all_repos.txt
+          if [ -d "$dir" ]
+          then
+            echo "Found directory for resfinder version ${release}"
+          else 
+            echo "No directory for resfinder version ${release}!"
+            echo "<br>- The tool resfinder is missing version ${release}" >> issue_text.txt
+          fi
+
+
+      - name: serotypefinder
+        id: check_serotypefinder
+        run: |
+          release=$(git ls-remote --tags https://bitbucket.org/genomicepidemiology/serotypefinder.git | \
+            awk -F/ '{print $NF}' | \
+            sort -V | \
+            grep -v "\^" | \
+            sed 's/v//g' | \
+            tail -n 1 )
+                
+          dir=$(ls -d ./build-files/serotypefinder/* | grep ${release} | head -n 1)
+          grep -v serotypefinder all_repos.txt > all_repos.txt.tmp
+          mv all_repos.txt.tmp all_repos.txt
+          if [ -d "$dir" ]
+          then
+            echo "Found directory for serotypefinder version ${release}"
+          else 
+            echo "No directory for serotypefinder version ${release}!"
+            echo "<br>- The tool serotypefinder is missing version ${release}" >> issue_text.txt
+          fi
+
+      - name: check_virulencefinder
+        id: check_virulencefinder
+        run: |
+          release=$(git ls-remote --tags https://bitbucket.org/genomicepidemiology/virulencefinder.git | \
+            awk -F/ '{print $NF}' | \
+            sort -V | \
+            grep -v "\^" | \
+            sed 's/v//g' | \
+            tail -n 1 )
+                
+          dir=$(ls -d ./build-files/virulencefinder/* | grep ${release} | head -n 1)
+          grep -v virulencefinder all_repos.txt > all_repos.txt.tmp
+          mv all_repos.txt.tmp all_repos.txt
+          if [ -d "$dir" ]
+          then
+            echo "Found directory for virulencefinder version ${release}"
+          else 
+            echo "No directory for virulencefinder version ${release}!"
+            echo "<br>- The tool virulencefinder is missing version ${release}" >> issue_text.txt
+          fi
+
+
       - name: list_unversioned
         id: list_unversioned
         run: |
