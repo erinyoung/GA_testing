@@ -3,6 +3,7 @@ The tool artic-ncov2019-epi2me
 The tool meningotype is missing version 0.8.2
 The tool auspice
 The tool canu-racon
+The tool ispcr
 The tool mafft is missing version 5.8.2
 circlator is missing version v1.5.5-docker5
 etoki is missing version 1.3
