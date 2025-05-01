@@ -290,6 +290,7 @@ jobs:
             awk -F/ '{print $NF}' | \
             sort -V | \
             grep -v test | \
+            grep -v EFSA | \
             grep -v "\^" | \
             sed 's/v//g' | \
             tail -n 1 )
