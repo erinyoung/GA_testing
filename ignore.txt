@@ -4,6 +4,7 @@ The tool meningotype is missing version 0.8.2
 The tool auspice
 The tool canu-racon
 The tool ispcr
+The tool mafft is missing version 5.8.3
 The tool integron_finder is missing version 2.0.2
 The tool colorid is missing version 0.4.1.2
 The tool checkv is missing version 1.0.1
