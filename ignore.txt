@@ -3,6 +3,7 @@ The tool artic-ncov2019-epi2me
 The tool meningotype is missing version 0.8.2
 The tool auspice
 The tool canu-racon
+The tool usher is missing version 0.6.4
 The tool ispcr
 The tool poppunk is missing version 2.7.4
 The tool mafft is missing version 5.8.3
