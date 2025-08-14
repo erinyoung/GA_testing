@@ -53,6 +53,8 @@ The tool grandeur_ref
 The tool bandage is not checked
 The tool masurca is missing version 4.1.2
 The tool pavian
+The tool masurca is missing version 4.1.4
+The tool igv-reports is missing version 1.15.0
 The tool vigor4 is missing version 3545356
 The tool polkapox
 The tool tostadas
