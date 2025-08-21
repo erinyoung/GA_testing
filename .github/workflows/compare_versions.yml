@@ -93,6 +93,7 @@ jobs:
               sed 's/amrfinder_v//g' | \
               sed 's/quast_//g' | \
               sed 's/adr-//g' | \
+              sed 's/lrge-//g' | \
               sed 's/-beta//g' )
 
             if [ -n "${release}" ]
