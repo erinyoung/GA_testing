@@ -25,6 +25,7 @@ jobs:
             sed 's/,/\t/g' | \
             sed 's/;/\t/g' | \
             sed 's/ /\t/g' | \
+            sed 's/https:\/\/https:/https:/g' | \
             cut -f 1,2 | \
             sed 's/\r$//g' | \
             awk '{ split($1, arr, "/"); $1=arr[2] }1' | \
