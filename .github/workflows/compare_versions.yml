@@ -73,6 +73,7 @@ jobs:
             echo "the line is ${line}"
             echo "the tool is $tool found at repo $repo"
             release=$(gh api repos/${repo}/releases/latest --jq '.tag_name' | \
+              sed 's/\"//g' | \
               grep -v Not | \
               grep -v latest \
               || true )
@@ -80,6 +81,7 @@ jobs:
             if [ -z "${release}" ] 
             then 
               release=$(gh api repos/${repo}/tags --jq '.[].name' | \
+                sed 's/\"//g' | \
                 sort -V | \
                 grep -v VDB-4760-2.9.7 | \
                 tail -n 1 | \
@@ -90,6 +92,7 @@ jobs:
             release=$(echo $release | \
               sed 's/-docker5//g' | \
               sed 's/^v//g' | \
+              sed 's/\"//g' | \
               sed 's/^V//g' | \
               sed 's/amrfinder_v//g' | \
               sed 's/quast_//g' | \
