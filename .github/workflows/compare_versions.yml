@@ -252,6 +252,7 @@ jobs:
               awk -F/ '{print $NF}' | \
               sort -V | \
               grep -v "\^" | \
+              sed 's/\"//g' | \
               sed 's/^v//g' | \
               tail -n 1 )
                   
