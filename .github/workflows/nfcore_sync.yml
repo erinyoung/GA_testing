@@ -44,30 +44,40 @@ jobs:
       - name: Fetch StaPH-B tool list
         run: |
             ls build-files/*/*/Dockerfile | \
-            cut -f 2 -d / | \
-            grep -v artic-ncov2019 | \
-            grep -v berrywood-report-env | \
-            grep -v canu-racon | \
-            grep -v cbird-util | \
-            grep -v cluster-report-env | \
-            grep -v datasets-sars-cov-2 | \
-            grep -v enabrowsertools | \
-            grep -v grandeur_ref | \
-            grep -v tostadas | \
-            grep -v polkapox | \
-            grep -v parallel-perl | \
-            grep -v iqtree | \
-            grep -v pycirclize | \
-            sed 's/_//g' | \
-            sed 's/-//g' | \
-            sort | \
-            uniq > staphb_list.txt
+              cut -f 2 -d / | \
+              grep -v artic-ncov2019 | \
+              grep -v berrywood-report-env | \
+              grep -v canu-racon | \
+              grep -v cbird-util | \
+              grep -v cluster-report-env | \
+              grep -v datasets-sars-cov-2 | \
+              grep -v bbtools | \
+              grep -v enabrowsertools | \
+              grep -v grandeur_ref | \
+              grep -v tostadas | \
+              grep -v polkapox | \
+              grep -v parallel-perl | \
+              grep -v iqtree | \
+              grep -v pycirclize | \
+              grep -v pandas | \
+              grep -v pangoaliasor | \
+              sed 's/_//g' | \
+              sed 's/-//g' | \
+              grep -v cutshawreportenv | \
+              grep -v emmtypingtool | \
+              grep -v ncbiamrfinderplus | \
+              grep -v shovillse | \
+              sort | \
+              uniq > staphb_list.txt
 
             cat staphb_list.txt
           
       - name: Compare StaPH-B and NF-CORE
         run: |
           grep -Fx -f nfcore_list.txt staphb_list.txt > included_tools.txt
+
+          cat included_tools.txt | \
+            awk '{print "This is already part of nf-core modules: " $0 }'
           grep -Fvx -f nfcore_list.txt staphb_list.txt > missing_tools.txt
 
       - name: Prepare Issue Text
@@ -85,7 +95,7 @@ jobs:
       - name: Create or Update Issue
         uses: peter-evans/create-issue-from-file@v5
         with:
-          title: "Gap Analysis: StaPH-B Tools Missing from nf-core"
+          title: "StaPH-B Tools Missing from nf-core"
           content-filepath: ./issue_body.md
           labels: |
             enhancement
