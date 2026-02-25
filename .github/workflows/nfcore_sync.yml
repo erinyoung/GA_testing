@@ -1,0 +1,51 @@
+name: Sync StaPH-B vs nf-core Missing Tools
+on:
+  workflow_dispatch:  
+  schedule:
+    - cron: '0 0 1 * *'
+
+jobs:
+  check-and-issue:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write        
+    steps:
+      - name: Install nf-core CLI
+        run: pip install nf-core
+
+      - name: Fetch and Compare Software
+        run: |
+          # 1. Get StaPH-B tool list
+          curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          https://api.github.com/repos/StaPH-B/docker-builds/contents/ \
+          | jq -r '.[] | select(.type == "dir" and ( .name | startswith(".") | not )) | .name' \
+          | tr '[:upper:]' '[:lower:]' | sort > staphb_list.txt
+
+          # 2. Get nf-core module list (deduplicated base names)
+          nf-core modules list remote --json \
+          | jq -r '.modules[]' \
+          | cut -d'/' -f1 \
+          | tr '[:upper:]' '[:lower:]' | sort -u > nfcore_list.txt
+
+          # 3. Find differences (StaPH-B tools NOT in nf-core)
+          comm -23 staphb_list.txt nfcore_list.txt > missing_tools.txt
+
+          # 4. Prepare the Issue Body
+          COUNT=$(wc -l < missing_tools.txt)
+          echo "## Missing Software Report ($(date +'%Y-%m-%d'))" > issue_body.md
+          echo "Found **$COUNT** tools in [StaPH-B/docker-builds](https://github.com/StaPH-B/docker-builds) that do not have corresponding modules in [nf-core/modules](https://github.com/nf-core/modules)." >> issue_body.md
+          echo "" >> issue_body.md
+          echo "### Missing Tools Checklist:" >> issue_body.md
+          sed 's/^/- [ ] /' missing_tools.txt >> issue_body.md
+          
+          # Also output to the workflow summary for quick viewing
+          cat issue_body.md >> $GITHUB_STEP_SUMMARY
+
+      - name: Create or Update Issue
+        uses: peter-evans/create-issue-from-file@v5
+        with:
+          title: "Gap Analysis: StaPH-B Tools Missing from nf-core"
+          content-filepath: ./issue_body.md
+          labels: |
+            enhancement
+            automated-report
