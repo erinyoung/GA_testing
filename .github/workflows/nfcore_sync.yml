@@ -10,8 +10,9 @@ jobs:
     permissions:
       issues: write        
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@main
+        with:
+          repository: StaPH-B/docker-builds
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -29,28 +30,45 @@ jobs:
 
       - name: Fetch nf-core modules
         run: |
-          nf-core modules list remote --json \
-          | jq -r '.modules[]' \
-          | cut -d '/' -f1 \
-          | tr '[:upper:]' '[:lower:]' \
-          | sort \
-          | uniq > nfcore_list.txt
+          nf-core modules list remote | \
+            grep -v "Module Name" | \
+            grep -v ───────── | \
+            awk '{print $2}' | \
+            cut -f 1 -d "/" | \
+            sed 's/_//g' | \
+            sed 's/-//g' | \
+            sort | \
+            uniq > nfcore_list.txt
           cat nfcore_list.txt
 
       - name: Fetch StaPH-B tool list
         run: |
-          curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-          https://api.github.com/repos/StaPH-B/docker-builds/contents/ \
-          | jq -r '.[] | select(.type == "dir" and ( .name | startswith(".") | not )) | .name' \
-          | tr '[:upper:]' '[:lower:]' \
-          | sort \
-          | uniq > staphb_list.txt
+            ls build-files/*/*/Dockerfile | \
+            cut -f 2 -d / | \
+            grep -v artic-ncov2019 | \
+            grep -v berrywood-report-env | \
+            grep -v canu-racon | \
+            grep -v cbird-util | \
+            grep -v cluster-report-env | \
+            grep -v datasets-sars-cov-2 | \
+            grep -v enabrowsertools | \
+            grep -v grandeur_ref | \
+            grep -v tostadas | \
+            grep -v polkapox | \
+            grep -v parallel-perl | \
+            grep -v iqtree | \
+            grep -v pycirclize | \
+            sed 's/_//g' | \
+            sed 's/-//g' | \
+            sort | \
+            uniq > staphb_list.txt
 
-          cat staphb_list.txt
+            cat staphb_list.txt
           
       - name: Compare StaPH-B and NF-CORE
         run: |
-          comm -23 staphb_list.txt nfcore_list.txt > missing_tools.txt
+          grep -Fx -f nfcore_list.txt staphb_list.txt > included_tools.txt
+          grep -Fvx -f nfcore_list.txt staphb_list.txt > missing_tools.txt
 
       - name: Prepare Issue Text
         run: |
