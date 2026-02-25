@@ -10,27 +10,50 @@ jobs:
     permissions:
       issues: write        
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Nextflow
+        uses: nf-core/setup-nextflow@v2
+        with:
+          version: 'latest-stable'
+
       - name: Install nf-core CLI
         run: pip install nf-core
 
-      - name: Fetch and Compare Software
+      - name: Fetch nf-core modules
         run: |
-          # 1. Get StaPH-B tool list
+          nf-core modules list remote --json \
+          | jq -r '.modules[]' \
+          | cut -d '/' -f1 \
+          | tr '[:upper:]' '[:lower:]' \
+          | sort \
+          | uniq > nfcore_list.txt
+          cat nfcore_list.txt
+
+      - name: Fetch StaPH-B tool list
+        run: |
           curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
           https://api.github.com/repos/StaPH-B/docker-builds/contents/ \
           | jq -r '.[] | select(.type == "dir" and ( .name | startswith(".") | not )) | .name' \
-          | tr '[:upper:]' '[:lower:]' | sort > staphb_list.txt
+          | tr '[:upper:]' '[:lower:]' \
+          | sort \
+          | uniq > staphb_list.txt
 
-          # 2. Get nf-core module list (deduplicated base names)
-          nf-core modules list remote --json \
-          | jq -r '.modules[]' \
-          | cut -d'/' -f1 \
-          | tr '[:upper:]' '[:lower:]' | sort -u > nfcore_list.txt
-
-          # 3. Find differences (StaPH-B tools NOT in nf-core)
+          cat staphb_list.txt
+          
+      - name: Compare StaPH-B and NF-CORE
+        run: |
           comm -23 staphb_list.txt nfcore_list.txt > missing_tools.txt
 
-          # 4. Prepare the Issue Body
+      - name: Prepare Issue Text
+        run: |
           COUNT=$(wc -l < missing_tools.txt)
           echo "## Missing Software Report ($(date +'%Y-%m-%d'))" > issue_body.md
           echo "Found **$COUNT** tools in [StaPH-B/docker-builds](https://github.com/StaPH-B/docker-builds) that do not have corresponding modules in [nf-core/modules](https://github.com/nf-core/modules)." >> issue_body.md
