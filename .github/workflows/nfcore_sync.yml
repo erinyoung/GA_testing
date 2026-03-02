@@ -10,27 +10,78 @@ jobs:
     permissions:
       issues: write        
     steps:
+      - uses: actions/checkout@main
+        with:
+          repository: StaPH-B/docker-builds
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Nextflow
+        uses: nf-core/setup-nextflow@v2
+        with:
+          version: 'latest-stable'
+
       - name: Install nf-core CLI
         run: pip install nf-core
 
-      - name: Fetch and Compare Software
+      - name: Fetch nf-core modules
         run: |
-          # 1. Get StaPH-B tool list
-          curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-          https://api.github.com/repos/StaPH-B/docker-builds/contents/ \
-          | jq -r '.[] | select(.type == "dir" and ( .name | startswith(".") | not )) | .name' \
-          | tr '[:upper:]' '[:lower:]' | sort > staphb_list.txt
+          nf-core modules list remote | \
+            grep -v "Module Name" | \
+            grep -v ───────── | \
+            awk '{print $2}' | \
+            cut -f 1 -d "/" | \
+            sed 's/_//g' | \
+            sed 's/-//g' | \
+            sort | \
+            uniq > nfcore_list.txt
+          cat nfcore_list.txt
 
-          # 2. Get nf-core module list (deduplicated base names)
-          nf-core modules list remote --json \
-          | jq -r '.modules[]' \
-          | cut -d'/' -f1 \
-          | tr '[:upper:]' '[:lower:]' | sort -u > nfcore_list.txt
+      - name: Fetch StaPH-B tool list
+        run: |
+            ls build-files/*/*/Dockerfile | \
+              cut -f 2 -d / | \
+              grep -v artic-ncov2019 | \
+              grep -v berrywood-report-env | \
+              grep -v canu-racon | \
+              grep -v cbird-util | \
+              grep -v cluster-report-env | \
+              grep -v datasets-sars-cov-2 | \
+              grep -v bbtools | \
+              grep -v enabrowsertools | \
+              grep -v grandeur_ref | \
+              grep -v tostadas | \
+              grep -v polkapox | \
+              grep -v parallel-perl | \
+              grep -v iqtree | \
+              grep -v pycirclize | \
+              grep -v pandas | \
+              grep -v pangoaliasor | \
+              sed 's/_//g' | \
+              sed 's/-//g' | \
+              grep -v cutshawreportenv | \
+              grep -v emmtypingtool | \
+              grep -v ncbiamrfinderplus | \
+              grep -v shovillse | \
+              sort | \
+              uniq > staphb_list.txt
 
-          # 3. Find differences (StaPH-B tools NOT in nf-core)
-          comm -23 staphb_list.txt nfcore_list.txt > missing_tools.txt
+            cat staphb_list.txt
+          
+      - name: Compare StaPH-B and NF-CORE
+        run: |
+          grep -Fx -f nfcore_list.txt staphb_list.txt > included_tools.txt
 
-          # 4. Prepare the Issue Body
+          cat included_tools.txt | \
+            awk '{print "This is already part of nf-core modules: " $0 }'
+          grep -Fvx -f nfcore_list.txt staphb_list.txt > missing_tools.txt
+
+      - name: Prepare Issue Text
+        run: |
           COUNT=$(wc -l < missing_tools.txt)
           echo "## Missing Software Report ($(date +'%Y-%m-%d'))" > issue_body.md
           echo "Found **$COUNT** tools in [StaPH-B/docker-builds](https://github.com/StaPH-B/docker-builds) that do not have corresponding modules in [nf-core/modules](https://github.com/nf-core/modules)." >> issue_body.md
@@ -44,7 +95,7 @@ jobs:
       - name: Create or Update Issue
         uses: peter-evans/create-issue-from-file@v5
         with:
-          title: "Gap Analysis: StaPH-B Tools Missing from nf-core"
+          title: "StaPH-B Tools Missing from nf-core"
           content-filepath: ./issue_body.md
           labels: |
             enhancement
