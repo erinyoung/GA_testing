@@ -61,12 +61,20 @@ jobs:
               grep -v pycirclize | \
               grep -v pandas | \
               grep -v pangoaliasor | \
+              grep -v any2fasta | \
+              grep -v cdcspn | \
               sed 's/_//g' | \
               sed 's/-//g' | \
               grep -v cutshawreportenv | \
               grep -v emmtypingtool | \
               grep -v ncbiamrfinderplus | \
+              grep -v cdcspn | \
               grep -v shovillse | \
+              grep -v kraken | \
+              grep -v mmseqs2 | \
+              grep -v raxml | \
+              grep -v ska2 | \
+              grep -v sratoolkit | \
               sort | \
               uniq > staphb_list.txt
 
