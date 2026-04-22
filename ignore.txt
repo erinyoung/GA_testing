@@ -53,3 +53,4 @@ The tool vigor4 is missing version 3545356
 The tool hifiasm-meta is missing version hamtv0.3.5
 The tool polkapox
 The tool tostadas
+The tool shovill is missing version 1.4.1
