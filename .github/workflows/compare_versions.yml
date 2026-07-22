@@ -95,6 +95,7 @@ jobs:
               sed 's/\"//g' | \
               sed 's/^V//g' | \
               sed 's/amrfinder_v//g' | \
+              sed 's/metaMDBG-//g' | \
               sed 's/quast_//g' | \
               sed 's/adr-//g' | \
               sed 's/lrge-//g' | \
