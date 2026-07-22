@@ -39,6 +39,7 @@ The tool shigeifinder is missing version 1.3.4
 The tool cluster-report-env
 The tool cutshaw-report-env
 The tool iqtree is not checked
+lja is missing version untagged-c539e6b1159980742576
 The tool ksnp3
 The tool parallel-perl
 The tool shovill-se is missing version 1.1.0se
