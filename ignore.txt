@@ -2,7 +2,9 @@ The tool artic-ncov2019
 The tool art is not checked
 The tool artic-ncov2019-epi2me
 The tool meningotype is missing version 0.8.2
+bandage-ng is missing version 2026.9.1
 The tool canu-racon
+ppanggolin is missing version 2.3.1
 The tool usher is missing version 0.6.4
 The tool poppunk is missing version 2.7.4
 The tool mafft is missing version 5.8.3
